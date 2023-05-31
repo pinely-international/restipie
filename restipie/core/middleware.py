@@ -10,12 +10,7 @@ def authenticate(*args, **kwargs):
     token = frappe.get_request_header("Authorization")
 
     decoded = validate_token(token)
-    user = frappe.get_value(
-        "User", {
-            "email": decoded.get("user"),
-            "enabled": 1
-        }
-    )
+    user = frappe.get_value("User", {"email": decoded.get("user"), "enabled": 1})
     if not user:
         raise ValidationError("Invalid token")
 
@@ -26,15 +21,18 @@ def authenticate(*args, **kwargs):
 
 
 def validate_token(token):
-    if not token: raise Unauthorized("Missing token")
+    if not token:
+        raise Unauthorized("Missing token")
     token_parts = token.split(" ")
 
-    if len(token_parts) != 2: raise Unauthorized("Invalid token")
+    if len(token_parts) != 2:
+        raise Unauthorized("Invalid token")
     token = token_parts[1] if token else None
-    if not token: raise Unauthorized("Invalid token")
+    if not token:
+        raise Unauthorized("Invalid token")
 
-    jwt_secret = frappe.local.conf.get('jwt_secret', "secret")
-    jwt_alg = frappe.local.conf.get('jwt_alg', "HS256")
+    jwt_secret = frappe.local.conf.get("jwt_secret", "secret")
+    jwt_alg = frappe.local.conf.get("jwt_alg", "HS256")
     site = frappe.local.site_path.replace("./", "")
 
     try:
@@ -57,7 +55,7 @@ def validate_session(email, sid):
     session = frappe.db.sql(
         """select user from tabSessions where user = %s and sid=%s""",
         (email, sid),
-        as_dict=True
+        as_dict=True,
     )
     if not session:
         raise Unauthorized("You are not logged in. Please log in and try again.")
@@ -72,7 +70,7 @@ def validate_schema(schema):
                 # "context": err.__class__.__name__,
                 "message": err.message,
                 "key": str(".".join(err.path)),
-                "context": err.validator
+                "context": err.validator,
             }
 
         try:
@@ -80,12 +78,7 @@ def validate_schema(schema):
             errors = sorted(v.iter_errors(kwargs.get("data")), key=str)
 
             if len(errors):
-                errors = list(
-                    map(
-                        lambda err: _get_error(err),
-                        errors
-                    )
-                )
+                errors = list(map(lambda err: _get_error(err), errors))
                 kwargs["errors"] = errors
             return args, kwargs
         except exceptions.ValidationError as v:

@@ -41,7 +41,7 @@ required_apps = ["frappe"]
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+# 	"Role": "home_page"
 # }
 
 # Website user home page (by function)
@@ -82,11 +82,11 @@ required_apps = ["frappe"]
 # Hook on document methods and events
 
 doc_events = {
-	# "*": {
-	# 	"on_update": "method",
-	# 	"on_cancel": "method",
-	# 	"on_trash": "method"
-	# }
+    # "*": {
+    # 	"on_update": "method",
+    # 	"on_cancel": "method",
+    # 	"on_trash": "method"
+    # }
 }
 
 # Scheduled Tasks
@@ -128,4 +128,3 @@ doc_events = {
 # override_doctype_dashboards = {
 # 	"Task": "restipie.task.get_dashboard_data"
 # }
-
