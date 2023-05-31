@@ -1,20 +1,15 @@
-import io
-import ast
 import json
-import base64
 
+import frappe
+from frappe.utils.response import build_response
+from restipie.helper import log, _import_all
 from werkzeug.exceptions import (
 	BadRequest,
 	Unauthorized,
 	NotImplemented,
-	InternalServerError,
 )
 
-import frappe
-from frappe.utils.response import build_response
-
-from restipie.helper import log, _import_all
-from . import response, middleware, router
+from . import response, middleware
 from .router import CustomRouter
 
 
@@ -106,7 +101,4 @@ def _handle(*args, **kwargs):
 				}
 			)
 
-	frappe.response["data"] = fn(*mwargs, **mwkwargs)
-	res = build_response("json")
-	# res.status_code =
-	return res
+	return fn(*mwargs, **mwkwargs)

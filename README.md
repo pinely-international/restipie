@@ -3,37 +3,42 @@
 
 ### Installation
 ``` sh
-$ bench get-app https://github.com/palanskiheji/restipie.git
+$ bench get-app 
 ```
 ### Prerequisite
 You should have frappe installed.
-Edit apps/frappe/frappe/app.py, and add elif block as shown in lines 10 to 12.
+Edit apps/frappe/frappe/app.py, and add elif block as shown in lines 16 to 17
 
 ``` python
-1    @Request.application
-2    def application(request):
-3        response = None
-4
-5        try:
-6             ...
-7             if frappe.local.form_dict.cmd:
-8                response = frappe.handler.handle()
-9
-10            elif frappe.request.path.startswith("/v1/"):
-11                from restipie.restipie import handle_req
-12                response =  handle_req()
-13
-14            elif frappe.request.path.startswith("/api/"):
-15                response = frappe.api.handle()
-16            ...
+1  import frappe
+2  from restipie.core import handle
+3  from werkzeug.wrappers import Request
+4  # import yours api routes here
+5
+6
+7  @Request.application
+8  def application(request):
+9     response = None
+10
+11    try:
+12        ...
+13        if frappe.local.form_dict.cmd:
+14            response = frappe.handler.handle()
+15
+16        elif frappe.request.path.startswith("/v1/"):
+17            response = handle()
+18    
+19        elif frappe.request.path.startswith("/api/"):
+20            response = frappe.api.handle()
+21    ...
 ```
 The above code will direct incoming request to "/v1/api/" to our custom handler.
 
 ### Adding custom ReST 
 Declare a function that accepts *args and **kwargs parameters and decorate it with the api function decorator as shown below.
 ```python
-    from restipie.custom_api_core import request
-    from restipie.custom_api_core import response
+    from restipie.core import request
+    from restipie.core.response import JSONResponse
 
 
     @request.api("POST", "/v1/api/test/users")
@@ -43,8 +48,7 @@ Declare a function that accepts *args and **kwargs parameters and decorate it wi
 
             #don't bake the business logic here, put it in the service layer.
 
-            return response.JSONResponse(
-                message="Successfully created user!",
+            return JSONResponse(
                 data=data
             )
         except Exception as e:
@@ -77,16 +81,17 @@ Here we use request.validate_schema to validate kwargs.get("data")(which contain
 ```python
     ...
     from .schema import user_schema
+    from restipie.core import request, middleware
+    from restipie.core.response import JSONResponse
 
-    @request.api("POST", "/v1/api/test/users", middlewares=(request.validate_schema(user_schema)))
+    @request.api("POST", "/v1/api/test/users", middlewares=(middleware.validate_schema(user_schema)))
     def create_user(*args, **kwargs):
         try:
             data = kwargs.get("data")
 
             #don't bake the business logic here, put it in the service layer.
 
-            return response.JSONResponse(
-                message="Successfully created user!",
+            return JSONResponse(
                 data=data
             )
         except Exception as e:
@@ -123,9 +128,10 @@ Exceptions raised inside of the handler and middleware will propagate to the mai
         try:
             user_id = kwargs.get("params").get("id")
 
-                #don't bake the business logic here, put it in the service layer.
+            #don't bake the business logic here, put it in the service layer.
 
-            return response.JSONResponse(data={})
+            response = JSONResponse(data={})
+            return 
         except Exception as e:
             raise e
 ```
