@@ -25,7 +25,6 @@ def handle_err(exception):
 
 
 class JSONResponse(Response):
-    valid_fields = ["message", "data"]
 
     def __init__(
         self, data: dict, status_code: int = 200, status: bool = True, **kwargs

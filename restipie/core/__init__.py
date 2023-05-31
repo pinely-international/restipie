@@ -1,7 +1,6 @@
 import json
 
 import frappe
-from frappe.utils.response import build_response
 from restipie.helper import log, _import_all
 from werkzeug.exceptions import (
     BadRequest,
@@ -9,8 +8,8 @@ from werkzeug.exceptions import (
     NotImplemented,
 )
 
-from . import response, middleware
-from .router import CustomRouter
+from restipie.core import response, middleware
+from restipie.core.router import CustomRouter
 
 
 def init(name):
@@ -90,7 +89,7 @@ def _handle(*args, **kwargs):
         mwargs, mwkwargs = mware(*mwargs, **mwkwargs)
 
         if "errors" in mwkwargs and len(mwkwargs.get("errors")):
-            return response.as_json(
+            return response.JSONResponse(
                 status_code=417,
                 data={
                     "success": False,
