@@ -3,7 +3,7 @@
 
 ### Installation
 ``` sh
-$ bench get-app 
+$ bench get-app https://github.com/pinely-international/restipie.git
 ```
 ### Prerequisite
 You should have frappe installed.
